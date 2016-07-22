@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Contact: frony0@gmail.com
 
-import time,codecs,math,os,unicodedata
+import time,codecs,math,os,unicodedata,operator
 from aqt import mw
 from anki.js import jquery
 from aqt.utils import showInfo
@@ -314,14 +314,14 @@ class KanjiGrid:
             if card.nid not in notes.keys():
                 keys = card.note().keys()
                 unitKey = None
+                matches = None
                 if _literal:
-                    for s,key in ((key.lower(),key) for key in keys):
-                        if _pattern == s.lower():
-                            unitKey = card.note()[key]
-                            break
+                    matches = operator.eq
                 else:
+                    matches = operator.contains
+                for keyword in _pattern:
                     for s,key in ((key.lower(),key) for key in keys):
-                        if _pattern in s.lower():
+                        if matches(s.lower(), keyword):
                             unitKey = card.note()[key]
                             break
                 notes[card.nid] = unitKey
@@ -353,7 +353,7 @@ class KanjiGrid:
         fl = QHBoxLayout()
         field = QLineEdit()
         field.setPlaceholderText("e.g. \"kanji\" or \"sentence-kanji\" (default: \"kanji\")")
-        il.addWidget(QLabel("Pattern or Field name to search for (first used, case insensitive):"))
+        il.addWidget(QLabel("Pattern or Field names to search for (case insensitive):"))
         fl.addWidget(field)
         liter = QCheckBox("Match exactly")
         liter.setChecked(_literal)
@@ -411,7 +411,7 @@ class KanjiGrid:
         swin.resize(500, 400)
         if swin.exec_():
             mw.progress.start(immediate=True)
-            if len(field.text().strip()) != 0: _pattern = field.text().lower()
+            if len(field.text().strip()) != 0: _pattern = field.text().lower().split()
             _literal = liter.isChecked()
             _interval = stint.value()
             _thin = ttcol.value()
