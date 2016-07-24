@@ -21,6 +21,7 @@ _group = 0
 _unseen = True
 _tooltips = False
 _kanjionly = True
+_dictionary_link = "http://jisho.org/search/%s%%20%%23kanji"
 _ignore = u"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + \
           u"ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ" + \
           u"ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ" + \
@@ -163,7 +164,7 @@ class KanjiGrid:
                             tooltip += "Background: %s | Index: %s" % (bgcolour, count)
                             table += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
                         else: table += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
-                        table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\">%s</a></td>\n" % (2*(unit.value,))
+                        table += ("<a href=\""+_dictionary_link+"\">%s</a></td>\n") % (2*(unit.value,))
                 table += "</tr></table>\n"
                 n = count+1
                 t = len(_grades[i][1])
@@ -179,7 +180,7 @@ class KanjiGrid:
                             tooltip  = "Character: %s" % (unicodedata.name(char))
                             table += "\t<td align=center valign=top style=\"background:#EEE;color:#FFF;\" title=\"%s\">" % (tooltip)
                         else: table += "\t<td align=center valign=top style=\"background:#EEE;color:#FFF;\">"
-                        table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\" style=\"color:#888;\">%s</a></td>\n" % (2*(char,))
+                        table += ("<a href=\""+_dictionary_link+"\" style=\"color:#888;\">%s</a></td>\n") % (2*(char,))
                     if count == -1: table += "<strong style=\"color:#CCC\">None</strong>"
                     table += "</tr></table></details>\n"
                 self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, t, n*100.0/t)
@@ -202,7 +203,7 @@ class KanjiGrid:
                         tooltip += "Background: %s | Index: %s" % (bgcolour, count)
                         table += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
                     else: table += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
-                    table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\">%s</a></td>\n" % (2*(unit.value,))
+                    table += ("<a href=\""+_dictionary_link+"\">%s</a></td>\n") % (2*(unit.value,))
             table += "</tr></table>\n"
             n = count+1
             self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, gc, n*100.0/gc)
@@ -231,7 +232,7 @@ class KanjiGrid:
                         tooltip += "Background: %s | Index: %s" % (bgcolour, count)
                         table += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
                     else: table += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
-                    table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\">%s</a></td>\n" % (2*(unit.value,))
+                    table += ("<a href=\""+_dictionary_link+"\">%s</a></td>\n") % (2*(unit.value,))
             table += "</tr></table>\n"
             self.html += "<h4 style=\"color:#888;\">%d total unique kanji</h4>\n" % (count+1)
             self.html += table
