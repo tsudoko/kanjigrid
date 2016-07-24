@@ -18,7 +18,7 @@ _literal = False
 _interval = 180
 _thin = 20
 _wide = 48
-_group = 0
+_groupby = 0
 _unseen = True
 _tooltips = False
 _kanjionly = True
@@ -158,18 +158,18 @@ class KanjiGrid:
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<center>\n"
-        if _group in (4, 5):
-            if _group == 4:
-                _grades = _jouyou
-            elif _group == 5:
-                _grades = _kanken
+        if _groupby in (4, 5):
+            if _groupby == 4:
+                _groups = _grades
+            elif _groupby == 5:
+                _groups = _kanken
             gc = 0
             kanji = list([u.value for u in units.values()])
-            for i in range(1,len(_grades)):
-                self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % _grades[i][0]
+            for i in range(1,len(_groups)):
+                self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % _groups[i][0]
                 table = "<table width='85%'><tr>\n"
                 count = -1
-                for unit in [units[c] for c in _grades[i][1] if c in kanji]:
+                for unit in [units[c] for c in _groups[i][1] if c in kanji]:
                     if unit.count != 0 or _unseen:
                         score = "NaN"
                         count += 1
@@ -185,12 +185,12 @@ class KanjiGrid:
                         table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\">%s</a></td>\n" % (2*(unit.value,))
                 table += "</tr></table>\n"
                 n = count+1
-                t = len(_grades[i][1])
+                t = len(_groups[i][1])
                 gc += n
                 if _unseen:
                     table += "<details><summary>Missing kanji</summary><table style=\"max-width:75%;\"><tr>\n"
                     count = -1
-                    for char in [c for c in _grades[i][1] if c not in kanji]:
+                    for char in [c for c in _groups[i][1] if c not in kanji]:
                         score = "NaN"
                         count += 1
                         if count % cols == 0: table += "</tr>\n<tr>\n"
@@ -204,8 +204,8 @@ class KanjiGrid:
                 self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, t, n*100.0/t)
                 self.html += table
 
-            chars = reduce(lambda x,y: x+y, dict(_grades).values())
-            self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>" % _grades[0][0]
+            chars = reduce(lambda x,y: x+y, dict(_groups).values())
+            self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>" % _groups[0][0]
             table = "<table width='85%'><tr>\n"
             count = -1
             for unit in [u for u in units.values() if u.value not in chars]:
@@ -228,13 +228,13 @@ class KanjiGrid:
             self.html += table
         else:
             table = "<table width='85%'><tr>\n"
-            if _group == 0: # Order found
+            if _groupby == 0: # Order found
                 unitsList = sorted( units.values(), key=lambda unit: (unit.idx, unit.count) )
-            if _group == 1: # Unicode index
+            if _groupby == 1: # Unicode index
                 unitsList = sorted( units.values(), key=lambda unit: (unicodedata.name(unit.value), unit.count) )
-            if _group == 2: # Character score
+            if _groupby == 2: # Character score
                 unitsList = sorted( units.values(), key=lambda unit: (scoreAdjust(unit.avg_interval / _interval), unit.count), reverse=True)
-            if _group == 3: # Deck frequency
+            if _groupby == 3: # Deck frequency
                 unitsList = sorted( units.values(), key=lambda unit: (unit.count, scoreAdjust(unit.avg_interval / _interval)), reverse=True)
             count = -1
             for unit in unitsList:
@@ -360,7 +360,7 @@ class KanjiGrid:
     def setup(self):
         global _pattern, _literal
         global _interval, _thin, _wide
-        global _group, _unseen, _tooltips
+        global _groupby, _unseen, _tooltips
         swin = QDialog(mw)
         vl = QVBoxLayout()
         frm = QGroupBox("Settings")
@@ -390,16 +390,16 @@ class KanjiGrid:
         wtcol.setValue(_wide)
         il.addWidget(QLabel("Number of Columns in the exported table:"))
         il.addWidget(wtcol)
-        group = QComboBox()
-        group.addItems(["None, sorted by order found",
+        groupby = QComboBox()
+        groupby.addItems(["None, sorted by order found",
                         "None, sorted by unicode order",
                         "None, sorted by score",
                         "None, sorted by frequency",
-                        "JLPT Grade",
+                        "Grade",
                         "Kanji Kentei Level"])
-        group.setCurrentIndex(_group)
+        groupby.setCurrentIndex(_groupby)
         il.addWidget(QLabel("Group by:"))
-        il.addWidget(group)
+        il.addWidget(groupby)
         shnew = QCheckBox("Show units not yet seen")
         shnew.setChecked(_unseen)
         il.addWidget(shnew)
@@ -420,8 +420,8 @@ class KanjiGrid:
         swin.setTabOrder(liter,stint)
         swin.setTabOrder(stint,ttcol)
         swin.setTabOrder(ttcol,wtcol)
-        swin.setTabOrder(wtcol,group)
-        swin.setTabOrder(group,shnew)
+        swin.setTabOrder(wtcol,groupby)
+        swin.setTabOrder(groupby,shnew)
         swin.setTabOrder(shnew,toolt)
         swin.resize(500, 400)
         if swin.exec_():
@@ -431,7 +431,7 @@ class KanjiGrid:
             _interval = stint.value()
             _thin = ttcol.value()
             _wide = wtcol.value()
-            _group = group.currentIndex()
+            _groupby = groupby.currentIndex()
             _unseen = shnew.isChecked()
             _tooltips = toolt.isChecked()
             self.makegrid()
