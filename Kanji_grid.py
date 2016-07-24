@@ -392,8 +392,8 @@ class KanjiGrid:
         il.addWidget(wtcol)
         group = QComboBox()
         group.addItems(["Kanji Kentei Level",
-        				"JLPT Grade",
-        				"None, sorted by order found",
+                        "JLPT Grade",
+                        "None, sorted by order found",
                         "None, sorted by unicode order",
                         "None, sorted by score",
                         "None, sorted by frequency"])
