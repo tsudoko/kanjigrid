@@ -160,7 +160,7 @@ class KanjiGrid:
         self.html += "<center>\n"
         if _group in (4, 5):
             if _group == 4:
-                _grades = _jlpt
+                _grades = _jouyou
             elif _group == 5:
                 _grades = _kanken
             gc = 0
