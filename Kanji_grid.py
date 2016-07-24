@@ -158,11 +158,11 @@ class KanjiGrid:
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<center>\n"
-        if _group == 0 or _group == 1:
-            if _group == 0:
-                _grades = _kanken
-            elif _group == 1:
+        if _group in (4, 5):
+            if _group == 4:
                 _grades = _jlpt
+            elif _group == 5:
+                _grades = _kanken
             gc = 0
             kanji = list([u.value for u in units.values()])
             for i in range(1,len(_grades)):
@@ -228,13 +228,13 @@ class KanjiGrid:
             self.html += table
         else:
             table = "<table width='85%'><tr>\n"
-            if _group == 2: # Order found
+            if _group == 0: # Order found
                 unitsList = sorted( units.values(), key=lambda unit: (unit.idx, unit.count) )
-            if _group == 3: # Unicode index
+            if _group == 1: # Unicode index
                 unitsList = sorted( units.values(), key=lambda unit: (unicodedata.name(unit.value), unit.count) )
-            if _group == 4: # Character score
+            if _group == 2: # Character score
                 unitsList = sorted( units.values(), key=lambda unit: (scoreAdjust(unit.avg_interval / _interval), unit.count), reverse=True)
-            if _group == 5: # Deck frequency
+            if _group == 3: # Deck frequency
                 unitsList = sorted( units.values(), key=lambda unit: (unit.count, scoreAdjust(unit.avg_interval / _interval)), reverse=True)
             count = -1
             for unit in unitsList:
@@ -391,12 +391,12 @@ class KanjiGrid:
         il.addWidget(QLabel("Number of Columns in the exported table:"))
         il.addWidget(wtcol)
         group = QComboBox()
-        group.addItems(["Kanji Kentei Level",
-                        "JLPT Grade",
-                        "None, sorted by order found",
+        group.addItems(["None, sorted by order found",
                         "None, sorted by unicode order",
                         "None, sorted by score",
-                        "None, sorted by frequency"])
+                        "None, sorted by frequency",
+                        "JLPT Grade",
+                        "Kanji Kentei Level"])
         group.setCurrentIndex(_group)
         il.addWidget(QLabel("Group by:"))
         il.addWidget(group)
