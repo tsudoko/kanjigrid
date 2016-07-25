@@ -151,6 +151,35 @@ class KanjiGrid:
             mw.form.menuTools.addAction(self.menuAction)
 
     def generate(self, units, timeNow, saveMode=False):
+        def kanjitile(char, index, count=0, avg_interval=0, missing=False):
+            tile = ""
+            score = "NaN"
+
+            if missing:
+                colour = "#888"
+            else:
+                colour = "#000"
+
+            if count != 0:
+                bgcolour = hsvrgbstr(scoreAdjust(avg_interval / _interval)/2)
+            elif missing:
+                bgcolour = "#EEE"
+            else:
+                bgcolour = "#FFF"
+
+            if _tooltips:
+                tooltip = "Character: %s" % unicodedata.name(char)
+                if count:
+                    tooltip += " | Count: %s | " % count
+                    tooltip += "Avg Interval: %s | Score: %s | " % (avg_interval, score)
+                    tooltip += "Background: %s | Index: %s" % (bgcolour, index)
+                tile += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
+            else:
+                tile += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
+            tile += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\" style=\"color:%s;\">%s</a></td>\n" % (char, colour, char)
+
+            return tile
+
         deckname = mw.col.decks.name(self.did).rsplit('::',1)[-1]
         if saveMode: cols = _wide
         else: cols = _thin
@@ -180,18 +209,9 @@ class KanjiGrid:
                 count = -1
                 for unit in [units[c] for c in _groups[i][1] if c in kanji]:
                     if unit.count != 0 or _unseen:
-                        score = "NaN"
                         count += 1
                         if count % cols == 0 and count != 0: table += "</tr>\n<tr>\n"
-                        if unit.count != 0: bgcolour = hsvrgbstr(scoreAdjust(unit.avg_interval / _interval)/2)
-                        else: bgcolour = "#FFF"
-                        if _tooltips:
-                            tooltip  = "Character: %s | Count: %s | " % (unicodedata.name(unit.value), unit.count)
-                            tooltip += "Avg Interval: %s | Score: %s | " % (unit.avg_interval, score)
-                            tooltip += "Background: %s | Index: %s" % (bgcolour, count)
-                            table += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
-                        else: table += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
-                        table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\">%s</a></td>\n" % (2*(unit.value,))
+                        table += kanjitile(unit.value, count, unit.count, unit.avg_interval)
                 table += "</tr></table>\n"
                 n = count+1
                 t = len(_groups[i][1])
@@ -200,14 +220,9 @@ class KanjiGrid:
                     table += "<details><summary>Missing kanji</summary><table style=\"max-width:75%;\"><tr>\n"
                     count = -1
                     for char in [c for c in _groups[i][1] if c not in kanji]:
-                        score = "NaN"
                         count += 1
                         if count % cols == 0: table += "</tr>\n<tr>\n"
-                        if _tooltips:
-                            tooltip  = "Character: %s" % (unicodedata.name(char))
-                            table += "\t<td align=center valign=top style=\"background:#EEE;color:#FFF;\" title=\"%s\">" % (tooltip)
-                        else: table += "\t<td align=center valign=top style=\"background:#EEE;color:#FFF;\">"
-                        table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\" style=\"color:#888;\">%s</a></td>\n" % (2*(char,))
+                        table += kanjitile(char, count, missing=True)
                     if count == -1: table += "<strong style=\"color:#CCC\">None</strong>"
                     table += "</tr></table></details>\n"
                 self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, t, n*100.0/t)
@@ -222,15 +237,7 @@ class KanjiGrid:
                     score = "NaN"
                     count += 1
                     if count % cols == 0 and count != 0: table += "</tr>\n<tr>\n"
-                    if unit.count != 0: bgcolour = hsvrgbstr(scoreAdjust(unit.avg_interval / _interval)/2)
-                    else: bgcolour = "#FFF"
-                    if _tooltips:
-                        tooltip  = "Character: %s | Count: %s | " % (unicodedata.name(unit.value), unit.count)
-                        tooltip += "Avg Interval: %s | Score: %s | " % (unit.avg_interval, score)
-                        tooltip += "Background: %s | Index: %s" % (bgcolour, count)
-                        table += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
-                    else: table += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
-                    table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\">%s</a></td>\n" % (2*(unit.value,))
+                    table += kanjitile(unit.value, count, unit.count, unit.avg_interval)
             table += "</tr></table>\n"
             n = count+1
             self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, gc, n*100.0/gc)
@@ -251,15 +258,7 @@ class KanjiGrid:
                     score = "NaN"
                     count += 1
                     if count % cols == 0 and count != 0: table += "</tr>\n<tr>\n"
-                    if unit.count != 0: bgcolour = hsvrgbstr(scoreAdjust(unit.avg_interval / _interval)/2)
-                    else: bgcolour = "#FFF"
-                    if _tooltips:
-                        tooltip  = "Character: %s | Count: %s | " % (unicodedata.name(unit.value), unit.count)
-                        tooltip += "Avg Interval: %s | Score: %s | " % (unit.avg_interval, score)
-                        tooltip += "Background: %s | Index: %s" % (bgcolour, count)
-                        table += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
-                    else: table += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
-                    table += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\">%s</a></td>\n" % (2*(unit.value,))
+                    table += kanjitile(unit.value, count, unit.count, unit.avg_interval)
             table += "</tr></table>\n"
             self.html += "<h4 style=\"color:#888;\">%d total unique kanji</h4>\n" % (count+1)
             self.html += table
