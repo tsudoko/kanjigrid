@@ -186,7 +186,7 @@ class KanjiGrid:
                 tooltip = "Character: %s" % unicodedata.name(char)
                 if count:
                     tooltip += " | Count: %s | " % count
-                    tooltip += "Avg Interval: %s | Score: %s | " % (avg_interval, score)
+                    tooltip += "Avg Interval: %s | Score: %s | " % (round(avg_interval, 2), score)
                     tooltip += "Background: %s | Index: %s" % (bgcolour, index)
                 tile += "\t<td style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
             else:
