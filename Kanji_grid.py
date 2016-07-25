@@ -257,7 +257,6 @@ class KanjiGrid:
             count = -1
             for unit in [u for u in units.values() if u.value not in chars]:
                 if unit.count != 0 or _unseen:
-                    score = "NaN"
                     count += 1
                     if count % cols == 0 and count != 0:
                         table += "</tr>\n<tr>\n"
@@ -279,7 +278,6 @@ class KanjiGrid:
             count = -1
             for unit in unitsList:
                 if unit.count != 0 or _unseen:
-                    score = "NaN"
                     count += 1
                     if count % cols == 0 and count != 0:
                         table += "</tr>\n<tr>\n"
@@ -348,7 +346,7 @@ class KanjiGrid:
         self.did = mw.col.conf['curDeck']
 
         dids = [self.did]
-        for name, id_ in mw.col.decks.children(self.did):
+        for _, id_ in mw.col.decks.children(self.did):
             dids.append(id_)
         #print("%s: %0.3f" % ("Decks selected", time.time()-_time))
         cids = mw.col.db.list("select id from cards where did in %s or odid in %s" % (ids2str(dids), ids2str(dids)))
