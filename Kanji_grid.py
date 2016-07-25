@@ -170,6 +170,9 @@ class KanjiGrid:
             tile = ""
             score = "NaN"
 
+            if avg_interval:
+                score = round(scoreAdjust(avg_interval / _interval), 2)
+
             if missing:
                 colour = "#888"
             else:
