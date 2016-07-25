@@ -10,7 +10,10 @@ from aqt.utils import showInfo
 from anki.utils import ids2str
 from anki.hooks import addHook
 from aqt.webview import AnkiWebView
-from aqt.qt import *
+from aqt.qt import QAction, QStandardPaths, \
+                   QImage, QPainter, \
+                   QFileDialog, QDialog, QHBoxLayout, QVBoxLayout, QGroupBox, \
+                   QLineEdit, QLabel, QCheckBox, QSpinBox, QComboBox, QPushButton
 
 #_time = None
 _pattern = "kanji"
