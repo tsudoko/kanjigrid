@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # Contact: frony0@gmail.com
 
-import time,codecs,os,unicodedata,operator
+import time, os, unicodedata, operator
 from functools import reduce
+
+from anki.utils import ids2str
 from aqt import mw
 from aqt.utils import showInfo
-from anki.utils import ids2str
 from aqt.webview import AnkiWebView
 from aqt.qt import QAction, QStandardPaths, \
                    QImage, QPainter, \
@@ -293,11 +294,10 @@ class KanjiGrid:
             mw.progress.start(immediate=True)
             if not ".htm" in fileName:
                 fileName += ".html"
-            fileOut = codecs.open(fileName, 'w', 'utf-8')
-            (units, timeNow) = self.kanjigrid()
-            self.generate(units, timeNow, True)
-            fileOut.write(self.html)
-            fileOut.close()
+            with open(fileName, 'w', encoding='utf-8') as fileOut:
+                (units, timeNow) = self.kanjigrid()
+                self.generate(units, timeNow, True)
+                fileOut.write(self.html)
             mw.progress.finish()
             showInfo("Page saved to %s!" % os.path.abspath(fileOut.name))
         return
