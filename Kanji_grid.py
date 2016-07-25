@@ -176,7 +176,7 @@ class KanjiGrid:
                 tile += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
             else:
                 tile += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
-            tile += "<a href=\"http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ%s\" style=\"color:%s;\">%s</a></td>\n" % (char, colour, char)
+            tile += "<a href=\"http://jisho.org/search/%s%%20%%23kanji\" style=\"color:%s;\">%s</a></td>\n" % (char, colour, char)
 
             return tile
 
