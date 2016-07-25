@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Contact: frony0@gmail.com
 
-import functools
 import operator
 import os
 import time
