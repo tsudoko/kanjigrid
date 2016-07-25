@@ -188,9 +188,9 @@ class KanjiGrid:
                     tooltip += " | Count: %s | " % count
                     tooltip += "Avg Interval: %s | Score: %s | " % (avg_interval, score)
                     tooltip += "Background: %s | Index: %s" % (bgcolour, index)
-                tile += "\t<td align=center valign=top style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
+                tile += "\t<td style=\"background:%s;\" title=\"%s\">" % (bgcolour, tooltip)
             else:
-                tile += "\t<td align=center valign=top style=\"background:%s;\">" % (bgcolour)
+                tile += "\t<td style=\"background:%s;\">" % (bgcolour)
             tile += "<a href=\"http://jisho.org/search/%s%%20%%23kanji\" style=\"color:%s;\">%s</a></td>\n" % (char, colour, char)
 
             return tile
@@ -200,17 +200,18 @@ class KanjiGrid:
             cols = _wide
         else:
             cols = _thin
-        self.html  = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n"
-        self.html += "<html><head><title>Anki Kanji Grid</title></head><body bgcolor=\"#FFF\">\n"
+        self.html  = "<!doctype html><html><head><meta charset=\"UTF-8\" /><title>Anki Kanji Grid</title>"
+        self.html += "<style type=\"text/css\">body{background-color:#FFF;}table{margin-left:auto;margin-right:auto;}.maintable{width:85%;}td{text-align:center;vertical-align:top;}.key{display:inline-block;width:3em}a,a:visited{color:#000;text-decoration:none;}</style>"
+        self.html += "</head>\n"
+        self.html += "<body>\n"
         self.html += "<span style=\"font-size: 3em;color: #888;\">Kanji Grid - %s</span><br>\n" % deckname
         self.html += "<div style=\"margin-bottom: 24pt;padding: 20pt;\"><p style=\"float: left\">Key:</p>"
-        self.html += "<style type=\"text/css\">.key{display:inline-block;width:3em}a,a:visited{color:#000;text-decoration:none;}</style>"
         self.html += "<p style=\"float: right\">Weak&nbsp;"
         for c in [n/6.0 for n in range(6+1)]:
             self.html += "<span class=\"key\" style=\"background-color: %s;\">&nbsp;</span>" % hsvrgbstr(c/2)
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
-        self.html += "<center>\n"
+        self.html += "<div style=\"text-align: center;\">\n"
         if _groupby in (4, 5, 6):
             if _groupby == 4:
                 _groups = _grades
@@ -222,7 +223,7 @@ class KanjiGrid:
             kanji = list([u.value for u in units.values()])
             for i in range(1, len(_groups)):
                 self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % _groups[i][0]
-                table = "<table width='85%'><tr>\n"
+                table = "<table class=\"maintable\"><tr>\n"
                 count = -1
                 for unit in [units[c] for c in _groups[i][1] if c in kanji]:
                     if unit.count != 0 or _unseen:
@@ -239,18 +240,18 @@ class KanjiGrid:
                     count = -1
                     for char in [c for c in _groups[i][1] if c not in kanji]:
                         count += 1
-                        if count % cols == 0:
+                        if count % cols == 0 and count != 0:
                             table += "</tr>\n<tr>\n"
                         table += kanjitile(char, count, missing=True)
                     if count == -1:
-                        table += "<strong style=\"color:#CCC\">None</strong>"
+                        table += "<td><b style=\"color:#CCC\">None</b></td>"
                     table += "</tr></table></details>\n"
                 self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, t, n*100.0/t)
                 self.html += table
 
             chars = reduce(lambda x, y: x+y, dict(_groups).values())
             self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>" % _groups[0][0]
-            table = "<table width='85%'><tr>\n"
+            table = "<table class=\"maintable\"><tr>\n"
             count = -1
             for unit in [u for u in units.values() if u.value not in chars]:
                 if unit.count != 0 or _unseen:
@@ -264,7 +265,7 @@ class KanjiGrid:
             self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, gc, n*100.0/gc)
             self.html += table
         else:
-            table = "<table width='85%'><tr>\n"
+            table = "<table class=\"maintable\"><tr>\n"
             if _groupby == 0: # Order found
                 unitsList = sorted(units.values(), key=lambda unit: (unit.idx, unit.count))
             if _groupby == 1: # Unicode index
@@ -284,7 +285,7 @@ class KanjiGrid:
             table += "</tr></table>\n"
             self.html += "<h4 style=\"color:#888;\">%d total unique kanji</h4>\n" % (count+1)
             self.html += table
-        self.html += "</center></body></html>\n"
+        self.html += "</div></body></html>\n"
 
     def displaygrid(self, units, timeNow):
         self.generate(units, timeNow)
