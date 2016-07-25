@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 # Contact: frony0@gmail.com
 
-import time,codecs,math,os,unicodedata,operator
+import time,codecs,os,unicodedata,operator
 from functools import reduce
 from aqt import mw
-from anki.js import jquery
 from aqt.utils import showInfo
 from anki.utils import ids2str
-from anki.hooks import addHook
 from aqt.webview import AnkiWebView
 from aqt.qt import QAction, QStandardPaths, \
                    QImage, QPainter, \
