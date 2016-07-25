@@ -348,8 +348,8 @@ class KanjiGrid:
         self.did = mw.col.conf['curDeck']
 
         dids = [self.did]
-        for name, id in mw.col.decks.children(self.did):
-            dids.append(id)
+        for name, id_ in mw.col.decks.children(self.did):
+            dids.append(id_)
         #print("%s: %0.3f" % ("Decks selected", time.time()-_time))
         cids = mw.col.db.list("select id from cards where did in %s or odid in %s" % (ids2str(dids), ids2str(dids)))
         #print("%s: %0.3f" % ("Cards selected", time.time()-_time))
@@ -357,7 +357,7 @@ class KanjiGrid:
         units = dict()
         notes = dict()
         timeNow = time.time()
-        for id, i in enumerate(cids):
+        for _, i in enumerate(cids):
             card = mw.col.getCard(i)
             if card.nid not in notes.keys():
                 keys = card.note().keys()
