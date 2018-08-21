@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Contact: frony0@gmail.com
 
+import json
 import operator
 import os
 import time
@@ -12,8 +13,8 @@ from anki.utils import ids2str
 from aqt import mw
 from aqt.utils import showInfo
 from aqt.webview import AnkiWebView
-from aqt.qt import (QAction, QStandardPaths,
-                    QImage, QPainter,
+from aqt.qt import (Qt, QAction, QStandardPaths,
+                    QImage, QPainter, QSize, QEvent,
                     QFileDialog, QDialog, QHBoxLayout, QVBoxLayout, QGroupBox,
                     QLineEdit, QLabel, QCheckBox, QSpinBox, QComboBox, QPushButton)
 
@@ -157,6 +158,36 @@ def hsvrgbstr(h, s=0.8, v=0.9):
     if i == 5: return "#%0.2X%0.2X%0.2X" % (_256(v), _256(p), _256(q))
 
 
+class KanjiGridWebView(AnkiWebView):
+    def __init__(self, parent=None):
+        super().__init__()
+        # Saved images are empty if the background is transparent; AnkiWebView
+        # sets bg color to transparent by default
+        self._page.setBackgroundColor(Qt.white)
+        self.save_png = ()
+
+    def eventFilter(self, obj, evt):
+        if not(evt.type() == QEvent.Paint and self.save_png):
+            return super().eventFilter(obj, evt)
+
+        filename, oldsize = self.save_png
+        self.save_png = ()
+
+        size = self._page.contentsSize().toSize()
+        image = QImage(size, QImage.Format_ARGB32)
+        painter = QPainter(image)
+        self.render(painter)
+        painter.end()
+        success = image.save(filename, "png")
+        self.resize(oldsize)
+        mw.progress.finish()
+        if success:
+            showInfo("Image saved to %s!" % os.path.abspath(filename))
+        else:
+            showCritical("Failed to save the image.")
+        return super().eventFilter(obj, evt)
+
+
 class KanjiGrid:
     def __init__(self, mw):
         if mw:
@@ -291,11 +322,11 @@ class KanjiGrid:
         self.generate(units, timeNow)
         #print("%s: %0.3f" % ("HTML generated", time.time()-_time))
         self.win = QDialog(mw)
-        self.wv = AnkiWebView()
+        self.wv = KanjiGridWebView()
         vl = QVBoxLayout()
         vl.setContentsMargins(0, 0, 0, 0)
         vl.addWidget(self.wv)
-        self.wv.stdHtml(self.html)
+        self.wv.setHtml(self.html)
         hl = QHBoxLayout()
         vl.addLayout(hl)
         sh = QPushButton("Save HTML", clicked=self.savehtml)
@@ -329,18 +360,11 @@ class KanjiGrid:
             mw.progress.start(immediate=True)
             if ".png" not in fileName:
                 fileName += ".png"
-            p = self.wv.page()
-            oldsize = p.viewportSize()
-            p.setViewportSize(p.mainFrame().contentsSize())
-            image = QImage(p.viewportSize(), QImage.Format_ARGB32)
-            painter = QPainter(image)
-            p.mainFrame().render(painter)
-            painter.end()
-            image.save(fileName, "png")
-            p.setViewportSize(oldsize)
-            mw.progress.finish()
-            showInfo("Image saved to %s!" % os.path.abspath(fileName))
-        return
+
+            oldsize = self.wv.size()
+            self.wv.resize(self.wv.page().contentsSize().toSize())
+            # the file will be saved after the page gets redrawn (KanjiGridWebView.eventFilter)
+            self.wv.save_png = (fileName, oldsize)
 
     def kanjigrid(self):
         self.did = mw.col.conf['curDeck']
