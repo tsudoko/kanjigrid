@@ -14,7 +14,7 @@ from aqt import mw
 from aqt.utils import showInfo
 from aqt.webview import AnkiWebView
 from aqt.qt import (Qt, QAction, QStandardPaths,
-                    QImage, QPainter, QSize, QEvent,
+                    QImage, QPainter, QSize, QEvent, QSizePolicy,
                     QFileDialog, QDialog, QHBoxLayout, QVBoxLayout, QGroupBox,
                     QLineEdit, QLabel, QCheckBox, QSpinBox, QComboBox, QPushButton)
 
@@ -367,8 +367,6 @@ class KanjiGrid:
             self.wv.save_png = (fileName, oldsize)
 
     def kanjigrid(self):
-        self.did = mw.col.conf['curDeck']
-
         dids = [self.did]
         for _, id_ in mw.col.decks.children(self.did):
             dids.append(id_)
@@ -412,12 +410,23 @@ class KanjiGrid:
             self.displaygrid(units, timeNow)
 
     def setup(self):
+        self.did = mw.col.conf['curDeck']
         global _pattern, _literal
         global _interval, _thin, _wide
         global _groupby, _unseen, _tooltips
         swin = QDialog(mw)
         vl = QVBoxLayout()
-        vl.addWidget(QLabel(f"Deck: <b>%s</b>" % mw.col.decks.get(mw.col.conf['curDeck'])['name']))
+        fl = QHBoxLayout()
+        deckcb = QComboBox()
+        deckcb.addItems(sorted(mw.col.decks.allNames()))
+        deckcb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        fl.addWidget(QLabel("Deck: "))
+        deckcb.setCurrentText(mw.col.decks.get(self.did)['name'])
+        def change_did(deckname):
+            self.did = mw.col.decks.byName(deckname)['id']
+        deckcb.currentTextChanged.connect(change_did)
+        fl.addWidget(deckcb)
+        vl.addLayout(fl)
         frm = QGroupBox("Settings")
         vl.addWidget(frm)
         il = QVBoxLayout()
