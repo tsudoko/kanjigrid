@@ -417,6 +417,7 @@ class KanjiGrid:
         global _groupby, _unseen, _tooltips
         swin = QDialog(mw)
         vl = QVBoxLayout()
+        vl.addWidget(QLabel(f"Deck: <b>%s</b>" % mw.col.decks.get(mw.col.conf['curDeck'])['name']))
         frm = QGroupBox("Settings")
         vl.addWidget(frm)
         il = QVBoxLayout()
