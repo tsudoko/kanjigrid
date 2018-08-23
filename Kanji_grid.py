@@ -26,7 +26,7 @@ _thin = 20
 _wide = 48
 _groupby = 0
 _unseen = True
-_tooltips = False
+_tooltips = True
 _kanjionly = True
 _ignore = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + \
           "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ" + \
