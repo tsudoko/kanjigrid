@@ -235,7 +235,7 @@ class KanjiGrid:
         else:
             cols = _thin
         self.html  = "<!doctype html><html><head><meta charset=\"UTF-8\" /><title>Anki Kanji Grid</title>"
-        self.html += "<style type=\"text/css\">body{background-color:#FFF;font-family:sans-serif;}table{margin-left:auto;margin-right:auto;}.maintable{width:85%;}td{text-align:center;vertical-align:top;}.key{display:inline-block;width:3em}a,a:visited{color:#000;text-decoration:none;}</style>"
+        self.html += "<style type=\"text/css\">body{background-color:#FFF;}table{margin-left:auto;margin-right:auto;}.maintable{width:85%;}td{text-align:center;vertical-align:top;}.key{display:inline-block;width:3em}a,a:visited{color:#000;text-decoration:none;}</style>"
         self.html += "</head>\n"
         self.html += "<body>\n"
         self.html += "<span style=\"font-size: 3em;color: #888;\">Kanji Grid - %s</span><br>\n" % deckname
@@ -327,7 +327,7 @@ class KanjiGrid:
         vl = QVBoxLayout()
         vl.setContentsMargins(0, 0, 0, 0)
         vl.addWidget(self.wv)
-        self.wv.setHtml(self.html)
+        self.wv.stdHtml(self.html)
         hl = QHBoxLayout()
         vl.addLayout(hl)
         sh = QPushButton("Save HTML", clicked=self.savehtml)
