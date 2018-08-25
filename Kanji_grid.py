@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Contact: frony0@gmail.com
+# Upstream: https://github.com/tsudoko/kanjigrid
+# AnkiWeb:  https://ankiweb.net/shared/info/909972618
 
 import json
 import operator
