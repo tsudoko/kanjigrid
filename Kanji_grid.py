@@ -20,15 +20,20 @@ from aqt.qt import (Qt, QAction, QStandardPaths,
                     QLineEdit, QLabel, QCheckBox, QSpinBox, QComboBox, QPushButton)
 
 #_time = None
-_pattern = "kanji"
-_literal = False
-_interval = 180
-_thin = 20
-_wide = 48
-_groupby = 0
-_unseen = True
-_tooltips = True
-_kanjionly = True
+# FIXME: changing the defaults using addons ui requires restarting anki to take effect
+# TODO: config window based on the widget from KanjiGrid.setup
+#       (s/Settings/Defaults/; s/Generate/Save/; s/default: .*//)
+_config = mw.addonManager.getConfig(__name__)
+_defaults = _config['defaults']
+_pattern = _defaults['pattern']
+_literal = _defaults['literal']
+_interval = _defaults['interval']
+_thin = _defaults['thin']
+_wide = _defaults['wide']
+_groupby = _defaults['groupby']
+_unseen = _defaults['unseen']
+_tooltips = _defaults['tooltips']
+_kanjionly = _defaults['kanjionly']
 _ignore = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + \
           "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ" + \
           "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ" + \
@@ -433,7 +438,7 @@ class KanjiGrid:
         il = QVBoxLayout()
         fl = QHBoxLayout()
         field = QLineEdit()
-        field.setPlaceholderText("e.g. \"kanji\" or \"sentence-kanji\" (default: \"kanji\")")
+        field.setPlaceholderText("e.g. \"kanji\" or \"sentence-kanji\" (default: \"%s\")" % _pattern)
         il.addWidget(QLabel("Pattern or Field names to search for (case insensitive):"))
         fl.addWidget(field)
         liter = QCheckBox("Match exactly")
@@ -493,7 +498,9 @@ class KanjiGrid:
         if swin.exec_():
             mw.progress.start(immediate=True)
             if len(field.text().strip()) != 0:
-                _pattern = field.text().lower().split()
+                _pattern = field.text().lower()
+            if isinstance(_pattern, str): # XXX get rid of this after you fix all the globals
+                _pattern = _pattern.split()
             _literal = liter.isChecked()
             _interval = stint.value()
             _thin = ttcol.value()
