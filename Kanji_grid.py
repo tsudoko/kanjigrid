@@ -23,17 +23,6 @@ from aqt.qt import (Qt, QAction, QStandardPaths,
 # FIXME: changing the defaults using addons ui requires restarting anki to take effect
 # TODO: config window based on the widget from KanjiGrid.setup
 #       (s/Settings/Defaults/; s/Generate/Save/; s/default: .*//)
-_config = mw.addonManager.getConfig(__name__)
-_defaults = _config['defaults']
-_pattern = _defaults['pattern']
-_literal = _defaults['literal']
-_interval = _defaults['interval']
-_thin = _defaults['thin']
-_wide = _defaults['wide']
-_groupby = _defaults['groupby']
-_unseen = _defaults['unseen']
-_tooltips = _defaults['tooltips']
-_kanjionly = _defaults['kanjionly']
 _ignore = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + \
           "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ" + \
           "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ" + \
@@ -138,8 +127,8 @@ def scoreAdjust(score):
     return 1 - 1 / (score * score)
 
 
-def addUnitData(units, unitKey, i, card, timeNow):
-    validKey = _ignore.find(unitKey) == -1 and (not _kanjionly or isKanji(unitKey))
+def addUnitData(units, unitKey, i, card, kanjionly, timeNow):
+    validKey = _ignore.find(unitKey) == -1 and (not kanjionly or isKanji(unitKey))
     if validKey:
         if unitKey not in units:
             unit = TestedUnit(unitKey)
@@ -207,7 +196,7 @@ class KanjiGrid:
             score = "NaN"
 
             if avg_interval:
-                score = round(scoreAdjust(avg_interval / _interval), 2)
+                score = round(scoreAdjust(avg_interval / self.interval), 2)
 
             if missing:
                 colour = "#888"
@@ -215,13 +204,13 @@ class KanjiGrid:
                 colour = "#000"
 
             if count != 0:
-                bgcolour = hsvrgbstr(scoreAdjust(avg_interval / _interval)/2)
+                bgcolour = hsvrgbstr(scoreAdjust(avg_interval / self.interval)/2)
             elif missing:
                 bgcolour = "#EEE"
             else:
                 bgcolour = "#FFF"
 
-            if _tooltips:
+            if self.tooltips:
                 tooltip = "Character: %s" % unicodedata.name(char)
                 if count:
                     tooltip += " | Count: %s | " % count
@@ -236,9 +225,9 @@ class KanjiGrid:
 
         deckname = mw.col.decks.name(self.did).rsplit('::', 1)[-1]
         if saveMode:
-            cols = _wide
+            cols = self.wide
         else:
-            cols = _thin
+            cols = self.thin
         self.html  = "<!doctype html><html><head><meta charset=\"UTF-8\" /><title>Anki Kanji Grid</title>"
         self.html += "<style type=\"text/css\">body{background-color:#FFF;}table{margin-left:auto;margin-right:auto;}.maintable{width:85%;}td{text-align:center;vertical-align:top;}.key{display:inline-block;width:3em}a,a:visited{color:#000;text-decoration:none;}</style>"
         self.html += "</head>\n"
@@ -251,33 +240,33 @@ class KanjiGrid:
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<div style=\"text-align: center;\">\n"
-        if _groupby in (4, 5, 6):
-            if _groupby == 4:
-                _groups = _grades
-            elif _groupby == 5:
-                _groups = _jlpt
-            elif _groupby == 6:
-                _groups = _kanken
+        if self.groupby in (4, 5, 6):
+            if self.groupby == 4:
+                self.groups = _grades
+            elif self.groupby == 5:
+                self.groups = _jlpt
+            elif self.groupby == 6:
+                self.groups = _kanken
             gc = 0
             kanji = list([u.value for u in units.values()])
-            for i in range(1, len(_groups)):
-                self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % _groups[i][0]
+            for i in range(1, len(self.groups)):
+                self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % self.groups[i][0]
                 table = "<table class=\"maintable\"><tr>\n"
                 count = -1
-                for unit in [units[c] for c in _groups[i][1] if c in kanji]:
-                    if unit.count != 0 or _unseen:
+                for unit in [units[c] for c in self.groups[i][1] if c in kanji]:
+                    if unit.count != 0 or self.unseen:
                         count += 1
                         if count % cols == 0 and count != 0:
                             table += "</tr>\n<tr>\n"
                         table += kanjitile(unit.value, count, unit.count, unit.avg_interval)
                 table += "</tr></table>\n"
                 n = count+1
-                t = len(_groups[i][1])
+                t = len(self.groups[i][1])
                 gc += n
-                if _unseen:
+                if self.unseen:
                     table += "<details><summary>Missing kanji</summary><table style=\"max-width:75%;\"><tr>\n"
                     count = -1
-                    for char in [c for c in _groups[i][1] if c not in kanji]:
+                    for char in [c for c in self.groups[i][1] if c not in kanji]:
                         count += 1
                         if count % cols == 0 and count != 0:
                             table += "</tr>\n<tr>\n"
@@ -288,12 +277,12 @@ class KanjiGrid:
                 self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, t, n*100.0/t)
                 self.html += table
 
-            chars = reduce(lambda x, y: x+y, dict(_groups).values())
-            self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>" % _groups[0][0]
+            chars = reduce(lambda x, y: x+y, dict(self.groups).values())
+            self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>" % self.groups[0][0]
             table = "<table class=\"maintable\"><tr>\n"
             count = -1
             for unit in [u for u in units.values() if u.value not in chars]:
-                if unit.count != 0 or _unseen:
+                if unit.count != 0 or self.unseen:
                     count += 1
                     if count % cols == 0 and count != 0:
                         table += "</tr>\n<tr>\n"
@@ -304,17 +293,17 @@ class KanjiGrid:
             self.html += table
         else:
             table = "<table class=\"maintable\"><tr>\n"
-            if _groupby == 0: # Order found
+            if self.groupby == 0: # Order found
                 unitsList = sorted(units.values(), key=lambda unit: (unit.idx, unit.count))
-            if _groupby == 1: # Unicode index
+            if self.groupby == 1: # Unicode index
                 unitsList = sorted(units.values(), key=lambda unit: (unicodedata.name(unit.value), unit.count))
-            if _groupby == 2: # Character score
-                unitsList = sorted(units.values(), key=lambda unit: (scoreAdjust(unit.avg_interval / _interval), unit.count), reverse=True)
-            if _groupby == 3: # Deck frequency
-                unitsList = sorted(units.values(), key=lambda unit: (unit.count, scoreAdjust(unit.avg_interval / _interval)), reverse=True)
+            if self.groupby == 2: # Character score
+                unitsList = sorted(units.values(), key=lambda unit: (scoreAdjust(unit.avg_interval / self.interval), unit.count), reverse=True)
+            if self.groupby == 3: # Deck frequency
+                unitsList = sorted(units.values(), key=lambda unit: (unit.count, scoreAdjust(unit.avg_interval / self.interval)), reverse=True)
             count = -1
             for unit in unitsList:
-                if unit.count != 0 or _unseen:
+                if unit.count != 0 or self.unseen:
                     count += 1
                     if count % cols == 0 and count != 0:
                         table += "</tr>\n<tr>\n"
@@ -389,11 +378,11 @@ class KanjiGrid:
                 keys = card.note().keys()
                 unitKey = None
                 matches = None
-                if _literal:
+                if self.literal:
                     matches = operator.eq
                 else:
                     matches = operator.contains
-                for keyword in _pattern:
+                for keyword in self.pattern:
                     for s, key in ((key.lower(), key) for key in keys):
                         if matches(s.lower(), keyword):
                             unitKey = card.note()[key]
@@ -403,7 +392,7 @@ class KanjiGrid:
                 unitKey = notes[card.nid]
             if unitKey is not None:
                 for ch in unitKey:
-                    addUnitData(units, ch, i, card, timeNow)
+                    addUnitData(units, ch, i, card, self.kanjionly, timeNow)
         #print("%s: %0.3f" % ("Units created", time.time()-_time))
         return units, timeNow
 
@@ -417,9 +406,18 @@ class KanjiGrid:
 
     def setup(self):
         self.did = mw.col.conf['curDeck']
-        global _pattern, _literal
-        global _interval, _thin, _wide
-        global _groupby, _unseen, _tooltips
+        config = mw.addonManager.getConfig(__name__)
+        defaults = config['defaults']
+        self.pattern = defaults['pattern']
+        self.literal = defaults['literal']
+        self.interval = defaults['interval']
+        self.thin = defaults['thin']
+        self.wide = defaults['wide']
+        self.groupby = defaults['groupby']
+        self.unseen = defaults['unseen']
+        self.tooltips = defaults['tooltips']
+        self.kanjionly = defaults['kanjionly']
+
         swin = QDialog(mw)
         vl = QVBoxLayout()
         fl = QHBoxLayout()
@@ -438,26 +436,26 @@ class KanjiGrid:
         il = QVBoxLayout()
         fl = QHBoxLayout()
         field = QLineEdit()
-        field.setPlaceholderText("e.g. \"kanji\" or \"sentence-kanji\" (default: \"%s\")" % _pattern)
+        field.setPlaceholderText("e.g. \"kanji\" or \"sentence-kanji\" (default: \"%s\")" % self.pattern)
         il.addWidget(QLabel("Pattern or Field names to search for (case insensitive):"))
         fl.addWidget(field)
         liter = QCheckBox("Match exactly")
-        liter.setChecked(_literal)
+        liter.setChecked(self.literal)
         fl.addWidget(liter)
         il.addLayout(fl)
         stint = QSpinBox()
         stint.setRange(1, 65536)
-        stint.setValue(_interval)
+        stint.setValue(self.interval)
         il.addWidget(QLabel("Card interval considered strong:"))
         il.addWidget(stint)
         ttcol = QSpinBox()
         ttcol.setRange(1, 99)
-        ttcol.setValue(_thin)
+        ttcol.setValue(self.thin)
         il.addWidget(QLabel("Number of Columns in the in-app table:"))
         il.addWidget(ttcol)
         wtcol = QSpinBox()
         wtcol.setRange(1, 99)
-        wtcol.setValue(_wide)
+        wtcol.setValue(self.wide)
         il.addWidget(QLabel("Number of Columns in the exported table:"))
         il.addWidget(wtcol)
         groupby = QComboBox()
@@ -468,14 +466,14 @@ class KanjiGrid:
                           "Grade",
                           "JLPT Level",
                           "Kanji Kentei Level"])
-        groupby.setCurrentIndex(_groupby)
+        groupby.setCurrentIndex(self.groupby)
         il.addWidget(QLabel("Group by:"))
         il.addWidget(groupby)
         shnew = QCheckBox("Show units not yet seen")
-        shnew.setChecked(_unseen)
+        shnew.setChecked(self.unseen)
         il.addWidget(shnew)
         toolt = QCheckBox("Show informational tooltips")
-        toolt.setChecked(_tooltips)
+        toolt.setChecked(self.tooltips)
         il.addWidget(toolt)
         frm.setLayout(il)
         hl = QHBoxLayout()
@@ -498,16 +496,15 @@ class KanjiGrid:
         if swin.exec_():
             mw.progress.start(immediate=True)
             if len(field.text().strip()) != 0:
-                _pattern = field.text().lower()
-            if isinstance(_pattern, str): # XXX get rid of this after you fix all the globals
-                _pattern = _pattern.split()
-            _literal = liter.isChecked()
-            _interval = stint.value()
-            _thin = ttcol.value()
-            _wide = wtcol.value()
-            _groupby = groupby.currentIndex()
-            _unseen = shnew.isChecked()
-            _tooltips = toolt.isChecked()
+                self.pattern = field.text().lower()
+            self.pattern = self.pattern.split()
+            self.literal = liter.isChecked()
+            self.interval = stint.value()
+            self.thin = ttcol.value()
+            self.wide = wtcol.value()
+            self.groupby = groupby.currentIndex()
+            self.unseen = shnew.isChecked()
+            self.tooltips = toolt.isChecked()
             self.makegrid()
             mw.progress.finish()
             self.win.show()
