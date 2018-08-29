@@ -12,7 +12,7 @@ from functools import reduce
 
 from anki.utils import ids2str
 from aqt import mw
-from aqt.utils import showInfo
+from aqt.utils import showInfo, showCritical
 from aqt.webview import AnkiWebView
 from aqt.qt import (Qt, QAction, QStandardPaths,
                     QImage, QPainter, QSize, QEvent, QSizePolicy,
