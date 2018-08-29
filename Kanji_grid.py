@@ -457,7 +457,7 @@ if __name__ != "__main__":
     if mw:
         mw.kanjigrid = KanjiGrid(mw)
 else:
-    print("This is a plugin for the Anki Spaced Repition learning system and cannot be run directly.")
-    print("Please download Anki2 from <http://ankisrs.net/>")
+    print("This is an addon for the Anki spaced repetition learning system and cannot be run directly.")
+    print("Please download Anki from <http://ankisrs.net/>")
 
 # vim:expandtab:
