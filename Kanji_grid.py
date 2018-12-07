@@ -194,13 +194,15 @@ class KanjiGrid:
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<div style=\"text-align: center;\">\n"
-        if config.groupby in (4, 5, 6):
+        if config.groupby in (4, 5, 6, 7):
             if config.groupby == 4:
                 self.groups = data.grades
             elif config.groupby == 5:
                 self.groups = data.jlpt
             elif config.groupby == 6:
                 self.groups = data.kanken
+            elif config.groupby == 7:
+                self.groups = data.rtk
             gc = 0
             kanji = list([u.value for u in units.values()])
             for i in range(1, len(self.groups)):
@@ -408,7 +410,8 @@ class KanjiGrid:
                           "None, sorted by frequency",
                           "Grade",
                           "JLPT Level",
-                          "Kanji Kentei Level"])
+                          "Kanji Kentei Level",
+                          "RTK6"])
         groupby.setCurrentIndex(config.groupby)
         il.addWidget(QLabel("Group by:"))
         il.addWidget(groupby)
