@@ -332,11 +332,7 @@ class KanjiGrid:
             if card.nid not in notes.keys():
                 keys = card.note().keys()
                 unitKey = None
-                matches = None
-                if config.literal:
-                    matches = operator.eq
-                else:
-                    matches = operator.contains
+                matches = operator.eq if config.literal else operator.contains
                 for keyword in config.pattern:
                     for s, key in ((key.lower(), key) for key in keys):
                         if matches(s.lower(), keyword):
