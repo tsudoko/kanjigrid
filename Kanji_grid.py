@@ -411,7 +411,7 @@ class KanjiGrid:
                           "Grade",
                           "JLPT Level",
                           "Kanji Kentei Level",
-                          "RTK6"])
+                          "Remembering the Kanji"])
         groupby.setCurrentIndex(config.groupby)
         il.addWidget(QLabel("Group by:"))
         il.addWidget(groupby)
