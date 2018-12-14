@@ -211,14 +211,14 @@ class KanjiGrid:
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<div style=\"text-align: center;\">\n"
         if config.groupby in range(len(data.groups) + len(SortOrder)):
-            self.groups = data.groups[config.groupby - len(SortOrder)].data
+            groups = data.groups[config.groupby - len(SortOrder)]
             gc = 0
             kanji = [u.value for u in units.values()]
-            for i in range(1, len(self.groups)):
-                self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % self.groups[i][0]
+            for i in range(1, len(groups.data)):
+                self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % groups.data[i][0]
                 table = "<table class=\"maintable\"><tr>\n"
                 count = -1
-                for unit in [units[c] for c in self.groups[i][1] if c in kanji]:
+                for unit in [units[c] for c in groups.data[i][1] if c in kanji]:
                     if unit.count != 0 or config.unseen:
                         count += 1
                         if count % cols == 0 and count != 0:
@@ -226,12 +226,12 @@ class KanjiGrid:
                         table += kanjitile(unit.value, count, unit.count, unit.avg_interval)
                 table += "</tr></table>\n"
                 n = count+1
-                t = len(self.groups[i][1])
+                t = len(groups.data[i][1])
                 gc += n
                 if config.unseen:
                     table += "<details><summary>Missing kanji</summary><table style=\"max-width:75%;\"><tr>\n"
                     count = -1
-                    for char in [c for c in self.groups[i][1] if c not in kanji]:
+                    for char in [c for c in groups.data[i][1] if c not in kanji]:
                         count += 1
                         if count % cols == 0 and count != 0:
                             table += "</tr>\n<tr>\n"
@@ -242,8 +242,8 @@ class KanjiGrid:
                 self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, t, n*100.0/t)
                 self.html += table
 
-            chars = reduce(lambda x, y: x+y, dict(self.groups).values())
-            self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>" % self.groups[0][0]
+            chars = reduce(lambda x, y: x+y, dict(groups.data).values())
+            self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>" % groups.data[0][0]
             table = "<table class=\"maintable\"><tr>\n"
             count = -1
             for unit in [u for u in units.values() if u.value not in chars]:
