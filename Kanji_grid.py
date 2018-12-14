@@ -3,6 +3,7 @@
 # Upstream: https://github.com/tsudoko/kanjigrid
 # AnkiWeb:  https://ankiweb.net/shared/info/909972618
 
+import enum
 import operator
 import os
 import time
@@ -137,6 +138,21 @@ class KanjiGridWebView(AnkiWebView):
         return super().eventFilter(obj, evt)
 
 
+class SortOrder(enum.Enum):
+    NONE = 0
+    UNICODE = 1
+    SCORE = 2
+    FREQUENCY = 3
+
+    def pretty_value(self):
+        return (
+            "order found",
+            "unicode order",
+            "score",
+            "frequency",
+        )[self.value]
+
+
 class KanjiGrid:
     def __init__(self, mw):
         if mw:
@@ -194,15 +210,8 @@ class KanjiGrid:
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<div style=\"text-align: center;\">\n"
-        if config.groupby in (4, 5, 6, 7):
-            if config.groupby == 4:
-                self.groups = data.grades
-            elif config.groupby == 5:
-                self.groups = data.jlpt
-            elif config.groupby == 6:
-                self.groups = data.kanken
-            elif config.groupby == 7:
-                self.groups = data.rtk
+        if config.groupby in range(len(data.groups) + len(SortOrder)):
+            self.groups = data.groups[config.groupby - len(SortOrder)].data
             gc = 0
             kanji = [u.value for u in units.values()]
             for i in range(1, len(self.groups)):
@@ -249,13 +258,13 @@ class KanjiGrid:
             self.html += table
         else:
             table = "<table class=\"maintable\"><tr>\n"
-            if config.groupby == 0: # Order found
+            if config.groupby == SortOrder.NONE:
                 unitsList = sorted(units.values(), key=lambda unit: (unit.idx, unit.count))
-            if config.groupby == 1: # Unicode index
+            if config.groupby == SortOrder.UNICODE:
                 unitsList = sorted(units.values(), key=lambda unit: (unicodedata.name(unit.value), unit.count))
-            if config.groupby == 2: # Character score
+            if config.groupby == SortOrder.SCORE:
                 unitsList = sorted(units.values(), key=lambda unit: (scoreAdjust(unit.avg_interval / config.interval), unit.count), reverse=True)
-            if config.groupby == 3: # Deck frequency
+            if config.groupby == SortOrder.FREQUENCY:
                 unitsList = sorted(units.values(), key=lambda unit: (unit.count, scoreAdjust(unit.avg_interval / config.interval)), reverse=True)
             count = -1
             for unit in unitsList:
@@ -400,14 +409,10 @@ class KanjiGrid:
         il.addWidget(QLabel("Number of Columns in the exported table:"))
         il.addWidget(wtcol)
         groupby = QComboBox()
-        groupby.addItems(["None, sorted by order found",
-                          "None, sorted by unicode order",
-                          "None, sorted by score",
-                          "None, sorted by frequency",
-                          "Grade",
-                          "JLPT Level",
-                          "Kanji Kentei Level",
-                          "Remembering the Kanji"])
+        groupby.addItems([
+            *("None, sorted by " + x.pretty_value() for x in SortOrder),
+            *(x.name for x in data.groups),
+        ])
         groupby.setCurrentIndex(config.groupby)
         il.addWidget(QLabel("Group by:"))
         il.addWidget(groupby)
