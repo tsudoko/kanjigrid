@@ -18,6 +18,7 @@ Differences from the original
    - Selecting multiple source fields
    - Grouping by JLPT level
    - Grouping by Kanji Kentei level
+   - Grouping by RTK volume
 
 If you're still using Anki 2.0, use the `anki20` branch.
 
