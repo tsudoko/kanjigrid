@@ -204,7 +204,7 @@ class KanjiGrid:
             elif config.groupby == 7:
                 self.groups = data.rtk
             gc = 0
-            kanji = list([u.value for u in units.values()])
+            kanji = [u.value for u in units.values()]
             for i in range(1, len(self.groups)):
                 self.html += "<h2 style=\"color:#888;\">%s Kanji</h2>\n" % self.groups[i][0]
                 table = "<table class=\"maintable\"><tr>\n"
