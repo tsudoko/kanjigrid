@@ -337,15 +337,15 @@ class KanjiGrid:
         units = dict()
         notes = dict()
         timeNow = time.time()
-        for _, i in enumerate(cids):
+        for i in cids:
             card = mw.col.getCard(i)
             if card.nid not in notes.keys():
                 keys = card.note().keys()
                 unitKey = None
                 matches = operator.eq if config.literal else operator.contains
                 for keyword in config.pattern:
-                    for s, key in ((key.lower(), key) for key in keys):
-                        if matches(s.lower(), keyword):
+                    for key in keys:
+                        if matches(key.lower(), keyword):
                             unitKey = card.note()[key]
                             break
                 notes[card.nid] = unitKey
