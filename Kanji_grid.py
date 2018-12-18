@@ -261,14 +261,12 @@ class KanjiGrid:
             self.html += "<style type=\"text/css\">.datasource{font-style:italic;font-size:0.75em;margin-top:1em;overflow-wrap:break-word;}.datasource a{color:#1034A6;}</style><span class=\"datasource\">Data source: " + ' '.join("<a href=\"{}\">{}</a>".format(w, urllib.parse.unquote(w)) if re.match("https?://", w) else w for w in groups.source.split(' ')) + "</span>"
         else:
             table = "<table class=\"maintable\"><tr>\n"
-            if config.groupby == SortOrder.NONE:
-                unitsList = sorted(units.values(), key=lambda unit: (unit.idx, unit.count))
-            if config.groupby == SortOrder.UNICODE:
-                unitsList = sorted(units.values(), key=lambda unit: (unicodedata.name(unit.value), unit.count))
-            if config.groupby == SortOrder.SCORE:
-                unitsList = sorted(units.values(), key=lambda unit: (scoreAdjust(unit.avg_interval / config.interval), unit.count), reverse=True)
-            if config.groupby == SortOrder.FREQUENCY:
-                unitsList = sorted(units.values(), key=lambda unit: (unit.count, scoreAdjust(unit.avg_interval / config.interval)), reverse=True)
+            unitsList = {
+                SortOrder.NONE:      sorted(units.values(), key=lambda unit: (unit.idx, unit.count)),
+                SortOrder.UNICODE:   sorted(units.values(), key=lambda unit: (unicodedata.name(unit.value), unit.count)),
+                SortOrder.SCORE:     sorted(units.values(), key=lambda unit: (scoreAdjust(unit.avg_interval / config.interval), unit.count), reverse=True),
+                SortOrder.FREQUENCY: sorted(units.values(), key=lambda unit: (unit.count, scoreAdjust(unit.avg_interval / config.interval)), reverse=True),
+            }[SortOrder(config.groupby)]
             count = -1
             for unit in unitsList:
                 if unit.count != 0 or config.unseen:
