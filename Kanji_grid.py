@@ -212,7 +212,7 @@ class KanjiGrid:
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<div style=\"text-align: center;\">\n"
-        if config.groupby in range(len(data.groups) + len(SortOrder)):
+        if config.groupby >= len(SortOrder):
             groups = data.groups[config.groupby - len(SortOrder)]
             gc = 0
             kanji = [u.value for u in units.values()]
