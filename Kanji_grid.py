@@ -24,7 +24,6 @@ from aqt.qt import (Qt, QAction, QStandardPaths,
 
 from . import data
 
-#_time = None
 # FIXME: changing the defaults using addons ui requires restarting anki to take effect
 # TODO: config window based on the widget from KanjiGrid.setup
 #       (s/Settings/Defaults/; s/Generate/Save/; s/default: .*//)
@@ -207,6 +206,7 @@ class KanjiGrid:
         self.html += "<span style=\"font-size: 3em;color: #888;\">Kanji Grid - %s</span><br>\n" % deckname
         self.html += "<div style=\"margin-bottom: 24pt;padding: 20pt;\"><p style=\"float: left\">Key:</p>"
         self.html += "<p style=\"float: right\">Weak&nbsp;"
+	# keycolors = (hsvrgbstr(n/6.0) for n in range(6+1))
         for c in [n/6.0 for n in range(6+1)]:
             self.html += "<span class=\"key\" style=\"background-color: %s;\">&nbsp;</span>" % hsvrgbstr(c/2)
         self.html += "&nbsp;Strong</p></div>\n"
@@ -281,7 +281,7 @@ class KanjiGrid:
 
     def displaygrid(self, config, units, timeNow):
         self.generate(config, units, timeNow)
-        #print("%s: %0.3f" % ("HTML generated", time.time()-_time))
+        self.timepoint("HTML generated")
         self.win = QDialog(mw)
         self.wv = KanjiGridWebView()
         vl = QVBoxLayout()
@@ -298,7 +298,7 @@ class KanjiGrid:
         hl.addWidget(bb)
         self.win.setLayout(vl)
         self.win.resize(500, 400)
-        #print("%s: %0.3f" % ("Window complete", time.time()-_time))
+        self.timepoint("Window complete")
         return 0
 
     def savehtml(self, config):
@@ -330,9 +330,9 @@ class KanjiGrid:
         dids = [config.did]
         for _, id_ in mw.col.decks.children(config.did):
             dids.append(id_)
-        #print("%s: %0.3f" % ("Decks selected", time.time()-_time))
+        self.timepoint("Decks selected")
         cids = mw.col.db.list("select id from cards where did in %s or odid in %s" % (ids2str(dids), ids2str(dids)))
-        #print("%s: %0.3f" % ("Cards selected", time.time()-_time))
+        self.timepoint("Cards selected")
 
         units = dict()
         notes = dict()
@@ -354,19 +354,23 @@ class KanjiGrid:
             if unitKey is not None:
                 for ch in unitKey:
                     addUnitData(units, ch, i, card, config.kanjionly, timeNow)
-        #print("%s: %0.3f" % ("Units created", time.time()-_time))
+        self.timepoint("Units created")
         return units, timeNow
 
     def makegrid(self, config):
-        #global _time
-        #_time = time.time()
-        #print("%s: %0.3f" % ("Start", time.time()-_time))
+        self.time = time.time()
+        self.timepoint("Start")
         (units, timeNow) = self.kanjigrid(config)
         if units is not None:
             self.displaygrid(config, units, timeNow)
 
     def setup(self):
-        config = types.SimpleNamespace(**mw.addonManager.getConfig(__name__)['defaults'])
+        addonconfig = mw.addonManager.getConfig(__name__)
+        config = types.SimpleNamespace(**addonconfig['defaults'])
+        if addonconfig.get("_debug_time", False):
+            self.timepoint = lambda c: print("%s: %0.3f" % (c, time.time()-self.time))
+        else:
+            self.timepoint = lambda _: None
         config.did = mw.col.conf['curDeck']
 
         swin = QDialog(mw)
