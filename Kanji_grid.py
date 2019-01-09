@@ -338,12 +338,12 @@ class KanjiGrid:
             card = mw.col.getCard(i)
             if card.nid not in notes.keys():
                 keys = card.note().keys()
-                unitKey = None
+                unitKey = set()
                 matches = operator.eq if config.literal else operator.contains
                 for keyword in config.pattern:
                     for key in keys:
                         if matches(key.lower(), keyword):
-                            unitKey = card.note()[key]
+                            unitKey.update(set(card.note()[key]))
                             break
                 notes[card.nid] = unitKey
             else:
