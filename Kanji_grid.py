@@ -70,12 +70,9 @@ class TestedUnit:
             self.idx = idx
 
 
+cjk_re = re.compile("CJK (UNIFIED|COMPATIBILITY) IDEOGRAPH")
 def isKanji(unichar):
-    try:
-        return unicodedata.name(unichar).find('CJK UNIFIED IDEOGRAPH') >= 0
-    except ValueError:
-        # a control character
-        return False
+    return bool(cjk_re.match(unicodedata.name(unichar, "")))
 
 
 def scoreAdjust(score):
