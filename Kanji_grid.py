@@ -52,7 +52,7 @@ class TestedUnit:
         self.count = 0
         self.mod = 0
 
-    def addDataFromCard(self, idx, card, timeNow):
+    def addDataFromCard(self, idx, card):
         if card.type > 0:
             newTotal = (self.avg_interval * self.count) + card.ivl
 
@@ -80,14 +80,14 @@ def scoreAdjust(score):
     return 1 - 1 / (score * score)
 
 
-def addUnitData(units, unitKey, i, card, kanjionly, timeNow):
+def addUnitData(units, unitKey, i, card, kanjionly):
     validKey = data.ignore.find(unitKey) == -1 and (not kanjionly or isKanji(unitKey))
     if validKey:
         if unitKey not in units:
             unit = TestedUnit(unitKey)
             units[unitKey] = unit
 
-        units[unitKey].addDataFromCard(i, card, timeNow)
+        units[unitKey].addDataFromCard(i, card)
 
 
 def hsvrgbstr(h, s=0.8, v=0.9):
@@ -158,7 +158,7 @@ class KanjiGrid:
             mw.form.menuTools.addSeparator()
             mw.form.menuTools.addAction(self.menuAction)
 
-    def generate(self, config, units, timeNow, saveMode=False):
+    def generate(self, config, units, saveMode=False):
         def kanjitile(char, index, count=0, avg_interval=0, missing=False):
             tile = ""
             score = "NaN"
@@ -276,8 +276,8 @@ class KanjiGrid:
             self.html += table
         self.html += "</div></body></html>\n"
 
-    def displaygrid(self, config, units, timeNow):
-        self.generate(config, units, timeNow)
+    def displaygrid(self, config, units):
+        self.generate(config, units)
         self.timepoint("HTML generated")
         self.win = QDialog(mw)
         self.wv = KanjiGridWebView()
@@ -305,8 +305,8 @@ class KanjiGrid:
             if ".htm" not in fileName:
                 fileName += ".html"
             with open(fileName, 'w', encoding='utf-8') as fileOut:
-                (units, timeNow) = self.kanjigrid(config)
-                self.generate(config, units, timeNow, True)
+                units = self.kanjigrid(config)
+                self.generate(config, units, True)
                 fileOut.write(self.html)
             mw.progress.finish()
             showInfo("Page saved to %s!" % os.path.abspath(fileOut.name))
@@ -333,7 +333,6 @@ class KanjiGrid:
 
         units = dict()
         notes = dict()
-        timeNow = time.time()
         for i in cids:
             card = mw.col.getCard(i)
             if card.nid not in notes.keys():
@@ -350,16 +349,16 @@ class KanjiGrid:
                 unitKey = notes[card.nid]
             if unitKey is not None:
                 for ch in unitKey:
-                    addUnitData(units, ch, i, card, config.kanjionly, timeNow)
+                    addUnitData(units, ch, i, card, config.kanjionly)
         self.timepoint("Units created")
-        return units, timeNow
+        return units
 
     def makegrid(self, config):
         self.time = time.time()
         self.timepoint("Start")
-        (units, timeNow) = self.kanjigrid(config)
+        units = self.kanjigrid(config)
         if units is not None:
-            self.displaygrid(config, units, timeNow)
+            self.displaygrid(config, units)
 
     def setup(self):
         addonconfig = mw.addonManager.getConfig(__name__)
