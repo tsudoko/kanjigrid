@@ -269,10 +269,10 @@ class KanjiGrid:
             self.html += "<h4 style=\"color:#888;\">%d total unique kanji</h4>\n" % (count+1)
             self.html += table
         self.html += "</div></body></html>\n"
+        self.timepoint("HTML generated")
 
     def displaygrid(self, config, units):
         self.generate(config, units)
-        self.timepoint("HTML generated")
         self.win = QDialog(mw)
         self.wv = KanjiGridWebView()
         vl = QVBoxLayout()
@@ -299,6 +299,8 @@ class KanjiGrid:
             if ".htm" not in fileName:
                 fileName += ".html"
             with open(fileName, 'w', encoding='utf-8') as fileOut:
+                self.time = time.time()
+                self.timepoint("HTML start")
                 units = self.kanjigrid(config)
                 self.generate(config, units, True)
                 fileOut.write(self.html)
