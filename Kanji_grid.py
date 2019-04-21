@@ -198,6 +198,8 @@ class KanjiGrid:
             cols = config.thin
         self.html  = "<!doctype html><html><head><meta charset=\"UTF-8\" /><title>Anki Kanji Grid</title>"
         self.html += "<style type=\"text/css\">body{background-color:#FFF;}.maintable{width:85%%;}.maintable,.missingtable{margin-left:auto;margin-right:auto;display:grid;grid-template-columns:repeat(%s, 1fr);text-align:left;}.maintable > *,.missingtable > *{text-align:center;vertical-align:top;margin:1px;line-height:1.5em;}.key{display:inline-block;width:3em}a,a:visited{color:#000;text-decoration:none;}</style>" % cols
+        if config.autothinwide:
+             self.html += "<style type=\"text/css\">.maintable,.missingtable{display:block;font-size:0px}.maintable > *,.missingtable > *{display:inline-block;font-size:initial;width:1.5em;}</style>"
         self.html += "</head>\n"
         self.html += "<body>\n"
         self.html += "<span style=\"font-size: 3em;color: #888;\">Kanji Grid - %s</span><br>\n" % deckname
@@ -394,13 +396,24 @@ class KanjiGrid:
         ttcol = QSpinBox()
         ttcol.setRange(1, 99)
         ttcol.setValue(config.thin)
-        il.addWidget(QLabel("Number of Columns in the in-app table:"))
-        il.addWidget(ttcol)
+        il.addWidget(QLabel("Number of Columns:"))
+        coll = QHBoxLayout()
+        coll.addWidget(QLabel("In-app:"))
+        coll.addWidget(ttcol)
         wtcol = QSpinBox()
         wtcol.setRange(1, 99)
         wtcol.setValue(config.wide)
-        il.addWidget(QLabel("Number of Columns in the exported table:"))
-        il.addWidget(wtcol)
+        coll.addWidget(QLabel("Exported:"))
+        coll.addWidget(wtcol)
+        itcol = QCheckBox("Don't care")
+        itcol.setChecked(addonconfig['defaults'].get("autothinwide", False))
+        def disableEnableColumnSettings(state):
+            ttcol.setEnabled(state != Qt.Checked)
+            wtcol.setEnabled(state != Qt.Checked)
+        itcol.stateChanged.connect(disableEnableColumnSettings)
+        disableEnableColumnSettings(itcol.checkState())
+        coll.addWidget(itcol)
+        il.addLayout(coll)
         groupby = QComboBox()
         groupby.addItems([
             *("None, sorted by " + x.pretty_value() for x in SortOrder),
@@ -445,6 +458,7 @@ class KanjiGrid:
             config.groupby = groupby.currentIndex()
             config.unseen = shnew.isChecked()
             config.tooltips = toolt.isChecked()
+            config.autothinwide = itcol.isChecked()
             self.makegrid(config)
             mw.progress.finish()
             self.win.show()
