@@ -192,6 +192,8 @@ class KanjiGrid:
             return tile
 
         deckname = mw.col.decks.name(config.did).rsplit('::', 1)[-1]
+        if config.did == 0:
+            deckname = "All Decks"
         if saveMode:
             cols = config.wide
         else:
@@ -369,12 +371,17 @@ class KanjiGrid:
         vl = QVBoxLayout()
         fl = QHBoxLayout()
         deckcb = QComboBox()
+        deckcb.addItems(["All Decks"])
         deckcb.addItems(sorted(mw.col.decks.allNames()))
         deckcb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         fl.addWidget(QLabel("Deck: "))
         deckcb.setCurrentText(mw.col.decks.get(config.did)['name'])
         def change_did(deckname):
-            config.did = mw.col.decks.byName(deckname)['id']
+            if deckname == "All Decks":
+                # get all decks
+                config.did = 0
+            else:
+                config.did = mw.col.decks.byName(deckname)['id']
         deckcb.currentTextChanged.connect(change_did)
         fl.addWidget(deckcb)
         vl.addLayout(fl)
