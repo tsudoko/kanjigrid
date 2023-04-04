@@ -207,7 +207,7 @@ class KanjiGrid:
         self.html += "<p style=\"float: right\">Weak&nbsp;"
 	# keycolors = (hsvrgbstr(n/6.0) for n in range(6+1))
         for c in [n/6.0 for n in range(6+1)]:
-            self.html += "<span class=\"key\" style=\"background-color: %s;\">&nbsp;</span>" % hsvrgbstr(c/2)
+        self.html += "<span class=\"key\" style=\"background-color: %s;\">&nbsp;</span>" % hsvrgbstr(c/2)
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<div style=\"text-align: center;\">\n"
