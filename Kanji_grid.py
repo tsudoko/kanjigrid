@@ -207,7 +207,7 @@ class KanjiGrid:
         self.html += "<p style=\"float: right\">Weak&nbsp;"
 	# keycolors = (hsvrgbstr(n/6.0) for n in range(6+1))
         for c in [n/6.0 for n in range(6+1)]:
-            self.html += "<span class=\"key\" style=\"background-color: %s;\">&nbsp;</span>" % hsvrgbstr(c/2)
+        self.html += "<span class=\"key\" style=\"background-color: %s;\">&nbsp;</span>" % hsvrgbstr(c/2)
         self.html += "&nbsp;Strong</p></div>\n"
         self.html += "<div style=\"clear: both;\"><br><hr style=\"border-style: dashed;border-color: #666;width: 60%;\"><br></div>\n"
         self.html += "<div style=\"text-align: center;\">\n"
@@ -249,7 +249,7 @@ class KanjiGrid:
                     table += kanjitile(unit.value, count, unit.count, unit.avg_interval)
             table += "</div>\n"
             n = count+1
-            self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, gc, n*100.0/gc)
+            self.html += "<h4 style=\"color:#888;\">%d of %d - %0.2f%%</h4>\n" % (n, gc, n*100.0/(gc if gc > 0 else 1))
             self.html += table
             self.html += "<style type=\"text/css\">.datasource{font-style:italic;font-size:0.75em;margin-top:1em;overflow-wrap:break-word;}.datasource a{color:#1034A6;}</style><span class=\"datasource\">Data source: " + ' '.join("<a href=\"{}\">{}</a>".format(w, urllib.parse.unquote(w)) if re.match("https?://", w) else w for w in groups.source.split(' ')) + "</span>"
         else:
