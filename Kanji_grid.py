@@ -370,7 +370,7 @@ class KanjiGrid:
         fl = QHBoxLayout()
         deckcb = QComboBox()
         deckcb.addItems(sorted(mw.col.decks.allNames()))
-        deckcb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        deckcb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         fl.addWidget(QLabel("Deck: "))
         deckcb.setCurrentText(mw.col.decks.get(config.did)['name'])
         def change_did(deckname):
@@ -448,7 +448,7 @@ class KanjiGrid:
         swin.setTabOrder(groupby, shnew)
         swin.setTabOrder(shnew, toolt)
         swin.resize(500, 400)
-        if swin.exec_():
+        if swin.exec():
             mw.progress.start(immediate=True)
             if len(field.text().strip()) != 0:
                 config.pattern = field.text().lower()
